@@ -1,0 +1,25 @@
+--- Reddit Like API ---
+
+Made this project to start learning Backend
+
+This API has features Like
+-Login
+-Create and Get User
+-CRUD Posts
+-Create Community
+-Join Community
+-Likes and Comments on Posts
+
+Engines folder has all the behind-features stuff
+-schemas
+-models
+-jwt token and oauth2
+-hashing of passwords
+
+_________ sql-app is the database file ___________
+
+(
+    Currently adding features like Redis Caching and Rate Limiting
+)
+
+[New features will be added here]
