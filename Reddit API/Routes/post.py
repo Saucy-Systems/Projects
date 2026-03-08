@@ -2,16 +2,27 @@ from fastapi import APIRouter, status, HTTPException, Depends
 from Engines import database, oauth2, schemas, models
 from sqlalchemy.orm import Session
 from typing import List
-from Engines import cache
+from Engines import cache, rate_limiter
 import json
 
 router= APIRouter(tags=["Post"])
 get_db= database.get_db
 get_current_user= oauth2.get_current_user
 redis_client= cache.redis_client
+rate_limit_user= rate_limiter.token_bucket_rate_limit
 
 @router.post("/community/{id}/post", response_model=schemas.post_response)
 def create_post(id: int,request: schemas.post, db: Session= Depends(get_db), current_user: models.Users= Depends(get_current_user)):
+
+    key = f"tokenbucket:create_post:user:{current_user.id}"
+
+    allowed = rate_limit_user(key=key, capacity=5, refill_rate=0.2)
+
+    if not allowed:
+        raise HTTPException(
+            status_code=429,
+            detail="Too many posts. Slow down."
+        )
 
     post= models.Posts(title= request.title, body= request.body, user_id= current_user.id, community_id= id)
     db.add(post)
